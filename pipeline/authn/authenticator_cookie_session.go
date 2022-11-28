@@ -197,6 +197,12 @@ func forwardRequestToSessionStore(client *http.Client, r *http.Request, cf Authe
 			return json.RawMessage{}, errors.WithStack(herodot.ErrInternalServerError.WithReasonf("Unable to fetch cookie session context from remote: %+v", err))
 		}
 		return body, nil
+	} else if res.StatusCode == http.StatusForbidden {
+		body, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return json.RawMessage{}, errors.WithStack(herodot.ErrInternalServerError.WithReasonf("Unable to fetch cookie session context from remote: %+v", err))
+		}
+		return body, errors.WithStack((helper.ErrForbidden))
 	} else {
 		return json.RawMessage{}, errors.WithStack(helper.ErrUnauthorized)
 	}
